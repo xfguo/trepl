@@ -23,9 +23,11 @@ ENDIF (UNIX OR NOT WIN32)
 
 CONFIGURE_FILE("utils.c" "${CMAKE_CURRENT_SOURCE_DIR}/treplutils.c")
 # C source files
-SET(src 
-  "${CMAKE_CURRENT_SOURCE_DIR}/readline.c"
+SET(src1 
   "${CMAKE_CURRENT_SOURCE_DIR}/treplutils.c" )
+
+SET(src2 
+  "${CMAKE_CURRENT_SOURCE_DIR}/readline.c" )
 
 # LUA source files
 SET(luasrc 
@@ -43,11 +45,16 @@ IF(MSVC)
   ADD_DEFINITIONS(-D_CRT_SECURE_NO_DEPRECATE=1)
 ENDIF(MSVC)
 
-ADD_LIBRARY("treplutils" SHARED ${src})
+ADD_LIBRARY("treplutils" SHARED ${src1})
+ADD_LIBRARY("readline" SHARED ${src2})
 
 # OUTPUT_NAME "treplutils"
 # We would like to rename util.c to treputils.so after compilation and without prefix lib
 SET_TARGET_PROPERTIES("treplutils" PROPERTIES
+  PREFIX ""
+  IMPORT_PREFIX "lib" )
+
+SET_TARGET_PROPERTIES("readline" PROPERTIES
   PREFIX ""
   IMPORT_PREFIX "lib" )
 
@@ -61,6 +68,7 @@ ENDIF()
 INSTALL(FILES ${luasrc} DESTINATION ${LUADIR}/trepl)
 # Install compiled C libraries
 INSTALL(TARGETS treplutils LIBRARY DESTINATION ${LUA_LIBDIR} )
+INSTALL(TARGETS readline LIBRARY DESTINATION ${LUA_LIBDIR} )
 IF(LUALIB)
   TARGET_LINK_LIBRARIES(treplutils ${LUALIB} readline)
 ENDIF()
